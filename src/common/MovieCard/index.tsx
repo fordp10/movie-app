@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { FaYoutube } from "react-icons/fa";
+import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 
 import Image from "../Image";
 import { IMovie } from "@/types";
 import { useMediaQuery } from "usehooks-ts";
+import { useWatchlist } from "@/context/watchlistContext";
 
 const MovieCard = ({
   movie,
@@ -14,6 +16,15 @@ const MovieCard = ({
 }) => {
   const { poster_path, original_title: title, name, id } = movie;
   const isMobile = useMediaQuery("(max-width: 380px)");
+  const { toggleWatchlist, isInWatchlist } = useWatchlist();
+  const inWatchlist = isInWatchlist(id);
+
+  const handleToggleWatchlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWatchlist(movie, category as "movie" | "tv");
+  };
+
   return (
     <>
       <Link
@@ -34,6 +45,18 @@ const MovieCard = ({
             <FaYoutube />
           </div>
         </div>
+
+        <button
+          onClick={handleToggleWatchlist}
+          className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70"
+          aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+        >
+          {inWatchlist ? (
+            <BsBookmarkFill className="text-red-500 text-lg" />
+          ) : (
+            <BsBookmark className="text-white text-lg" />
+          )}
+        </button>
       </Link>
 
       <h4 className="dark:text-gray-300 text-center cursor-default sm:text-base xs:text-[14.75px] text-[14px] font-medium ">

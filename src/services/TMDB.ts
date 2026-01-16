@@ -10,28 +10,33 @@ export const tmdbApi = createApi({
     getShows: builder.query({
       query: ({
         category,
-        type,
-        searchQuery,
         page,
         showSimilarShows,
         id,
       }: {
         category: string | undefined;
-        type?: string;
         page?: number;
-        searchQuery?: string;
         showSimilarShows?: boolean;
         id?: number;
       }) => {
-        if (searchQuery) {
-          return `search/${category}?api_key=${API_KEY}&query=${searchQuery}&page=${page}`;
-        }
-
         if (showSimilarShows) {
           return `${category}/${id}/similar?api_key=${API_KEY}`;
         }
 
-        return `${category}/${type}?api_key=${API_KEY}&page=${page}`;
+        // For TV shows, use person's TV credits (discover/tv doesn't support with_cast)
+        if (category === "tv") {
+          return `person/12836/tv_credits?api_key=${API_KEY}`;
+        }
+
+        // For movies, use discover with Tom Cruise
+        return `discover/movie?api_key=${API_KEY}&with_cast=500&page=${page}&sort_by=popularity.desc`;
+      },
+      transformResponse: (response: any, meta, arg) => {
+        // TV credits endpoint returns { cast: [], crew: [] }, transform to { results: [] }
+        if (arg.category === "tv" && response.cast) {
+          return { results: response.cast };
+        }
+        return response;
       },
     }),
 

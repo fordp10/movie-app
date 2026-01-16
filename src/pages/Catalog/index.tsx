@@ -16,20 +16,17 @@ const Catalog = () => {
   const [query, setQuery] = useSearchParams();
   const { category } = useParams();
 
-  const type = query.get("type") || "popular";
   const searchQuery = query.get("search") || "";
 
   const { data, isLoading, isFetching } = useGetShowsQuery({
     category,
     page,
-    searchQuery,
-    type,
   });
 
   useEffect(() => {
     setPage(1);
     setIsCategoryChanged(true);
-  }, [category, searchQuery]);
+  }, [category]);
 
   useEffect(() => {
     if (isLoading || isFetching) return;
@@ -44,6 +41,14 @@ const Catalog = () => {
     }
   }, [data, isFetching, isLoading, page]);
 
+  // Client-side filtering by search query
+  const filteredShows = searchQuery
+    ? shows.filter((show) => {
+        const title = show.original_title || show.name || "";
+        return title.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+    : shows;
+
   return (
     <>
       <CatalogHeader category={String(category)} />
@@ -57,7 +62,7 @@ const Catalog = () => {
           
             className="flex flex-wrap xs:gap-4 gap-[14px] justify-center"
           >
-            {shows?.map((movie) => (
+            {filteredShows?.map((movie) => (
               <div
                 key={movie.id}
                 className="flex flex-col xs:gap-4 gap-2 xs:max-w-[170px] max-w-[124px] rounded-lg lg:mb-6 md:mb-5 sm:mb-4 mb-[10px]"

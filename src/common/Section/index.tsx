@@ -14,7 +14,6 @@ interface SectionProps {
   title: string;
   category: string;
   className?: string;
-  type?: string;
   id?: number;
   showSimilarShows?: boolean;
 }
@@ -23,7 +22,6 @@ const Section: FC<SectionProps> = ({
   title,
   category,
   className,
-  type,
   id,
   showSimilarShows,
 }) => {
@@ -43,7 +41,6 @@ const Section: FC<SectionProps> = ({
   } = useGetShowsQuery(
     {
       category,
-      type,
       page: 1,
       showSimilarShows,
       id,
@@ -72,7 +69,7 @@ const Section: FC<SectionProps> = ({
           <div className="line" />
         </div>
         {!showSimilarShows && (
-          <Link to={`/${category}?type=${type}`} className={linkStyle}>
+          <Link to={`/${category}`} className={linkStyle}>
             View all
           </Link>
         )}
